@@ -1,8 +1,9 @@
 #include "SpriteSheet.h"
+//Lucia Donley
 
 Sprite::Sprite()
 {
-	image=NULL;
+	image = NULL;
 }
 Sprite::~Sprite()
 {
@@ -10,21 +11,25 @@ Sprite::~Sprite()
 }
 void Sprite::InitSprites(int width, int height)
 {
-	x = 80;
-	y = -10;
+	x = 120;
+	y = 60;
 
-
-	maxFrame = 8;
+	//need to check if dir == something for jumping
+	//maxFrame = 12
+	//new if statement in draw function for jumping
+	maxFrame = 4;
 	curFrame = 0;
+	//jumpFrame = 8;
+	//jumpFrameDelay = 6;
 	frameCount = 0;
 	frameDelay = 6;
-	frameWidth = 50;
-	frameHeight = 64;
-	animationColumns = 8;
+	frameWidth = 333;
+	frameHeight = 499;
+	animationColumns = 4;
 	animationDirection = 1;
 
-	image = al_load_bitmap("guy.bmp");
-	al_convert_mask_to_alpha(image, al_map_rgb(255,0,255));
+	image = al_load_bitmap("man_walking.png");
+	al_convert_mask_to_alpha(image, al_map_rgb(255, 255, 255));
 }
 
 void Sprite::UpdateSprites(int width, int height, int dir)
@@ -32,48 +37,94 @@ void Sprite::UpdateSprites(int width, int height, int dir)
 	int oldx = x;
 	int oldy = y;
 
-	if(dir == 1){ //right key
-		animationDirection = 1; 
-		x+=2; 
+	if (dir == 1) { //right key
+		animationDirection = 1;
+		goingLeft = false;
+		x += 2;
 		if (++frameCount > frameDelay)
 		{
-			frameCount=0;
+			frameCount = 0;
 			if (++curFrame > maxFrame)
-				curFrame=1;
+				curFrame = 1;
+			//if (++curFrame >= maxFrame)
+			//	curFrame = 0;
 		}
-	} else if (dir == 0){ //left key
-		animationDirection = 0; 
-		x-=2; 
+	}
+	else if (dir == 0) { //left key
+		animationDirection = 0;
+		goingLeft = true;
+		x -= 2;
 		if (++frameCount > frameDelay)
 		{
-			frameCount=0;
+			frameCount = 0;
 			if (++curFrame > maxFrame)
-				curFrame=1;
+				curFrame = 1;
 		}
-	}else //represent that they hit the space bar and that mean direction = 0
+
+	}
+	else if (dir==3) {//up key
+		animationDirection = 3;
+		y -= 2;
+		if (++frameCount > frameDelay)
+		{
+			frameCount = 0;
+			if (++curFrame > maxFrame)
+				curFrame = 1;
+		}
+	}
+	
+	else if (dir == 4) {//down key
+		animationDirection = 4;
+		y += 2;
+		if (++frameCount > frameDelay)
+		{
+			frameCount = 0;
+			if (++curFrame > maxFrame)
+				curFrame = 1;
+		}
+	}
+
+	else { //represent that they hit the space bar and that mean direction = 0
+		goingLeft = false;
 		animationDirection = dir;
+		//isJumping = false;
+	}
+
+	charWidth = 48;
+	charHeight = 72;
 
 	//check for collided with foreground tiles
-	if (animationDirection==0)
-	{ 
-		if (collided(x, y + frameHeight)) { //collision detection to the left
-			x = oldx; 
-			y= oldy;
+	if (animationDirection == 0)
+	{
+		if (collided(x, y + charHeight)) { //collision detection to the left
+			x = oldx;
+			y = oldy;
 		}
 
 	}
-	else if (animationDirection ==1)
-	{ 
-		if (collided(x + frameWidth, y + frameHeight)) { //collision detection to the right
-			x = oldx; 
-			y= oldy;
+	else if (animationDirection == 1)
+	{
+		if (collided(x + charWidth, y + charHeight)) { //collision detection to the right
+			x = oldx;
+			y = oldy;
 		}
 	}
+
+	if (animationDirection == 3)
+	{
+		if (collided(x, y - charHeight)) { //collision detection up
+			x = oldx;
+			y = oldy;
+		}
+
+	}
+	
 }
 
 bool Sprite::CollisionEndBlock()
 {
-	if (endValue(x + frameWidth/2, y + frameHeight + 5))
+
+	if (endValue(x + charWidth / 2, y + charHeight + 5))
 		return true;
 	else
 		return false;
@@ -81,43 +132,28 @@ bool Sprite::CollisionEndBlock()
 
 void Sprite::DrawSprites(int xoffset, int yoffset)
 {
+
+	float newWidth = 48.0f;
+	float newHeight = 72.0f;
 	int fx = (curFrame % animationColumns) * frameWidth;
 	int fy = (curFrame / animationColumns) * frameHeight;
 
-	if (animationDirection==1){
-		al_draw_bitmap_region(image, fx, fy, frameWidth,frameHeight, x-xoffset, y-yoffset, 0);
-	}else if (animationDirection == 0 ){
-		al_draw_bitmap_region(image, fx, fy, frameWidth,frameHeight, x-xoffset, y-yoffset, ALLEGRO_FLIP_HORIZONTAL);
-	}else if (animationDirection == 2 ){
-		al_draw_bitmap_region(image,0,0,frameWidth,frameHeight,  x-xoffset, y-yoffset, 0);
+	float minimizeX = (float)newWidth / charWidth;
+	float minimizeY = (float)newHeight / charHeight;
 
-	}
-}
+	//int jumpx = (jumpFrame % animationColumns) * frameWidth;
+	//int jumpy = (jumpFrame / animationColumns) * frameHeight;
 
-int Sprite::jumping(int jump, const int JUMPIT)
-{
-	//handle jumping
-	if (jump==JUMPIT) { 
-		if (!collided(x + frameWidth/2, y + frameHeight + 5))
-			jump = 0; 
+	if (animationDirection == 1) {
+		al_draw_tinted_scaled_rotated_bitmap_region(image, fx, fy, frameWidth, frameHeight, al_map_rgb(255, 255, 255), 0, 0, x - xoffset, y - yoffset, (48.0f / 333.0f), (72.0f / 499.0f), 0, 0);
 	}
-	else
-	{
-		y -= jump/3; 
-		jump--; 
-		curFrame=0;
+	else if (animationDirection == 0) {
+		al_draw_tinted_scaled_rotated_bitmap_region(image, fx, fy, frameWidth, frameHeight, al_map_rgb(255, 255, 255), 0, 0, x - xoffset, y - yoffset, (48.0f / 333.0f), (72.0f / 499.0f), 0, ALLEGRO_FLIP_HORIZONTAL);
 	}
-
-	if (jump<0) 
-	{ 
-		if (collided(x + frameWidth/2,  y + frameHeight))
-		{ 
-			jump = JUMPIT; 
-			while (collided(x + frameWidth/2,y + frameHeight))
-			{
-				y -= 3;
-			}
-		} 
+	else if (animationDirection == 2) {
+		al_draw_tinted_scaled_rotated_bitmap_region(image, 0, 0, frameWidth, frameHeight, al_map_rgb(255, 255, 255), 0, 0, x - xoffset, y - yoffset, (48.0f / 333.0f), (72.0f / 499.0f), 0, 0);
 	}
-	return jump;
+	else {
+		al_draw_tinted_scaled_rotated_bitmap_region(image, 0, 0, frameWidth, frameHeight, al_map_rgb(255, 255, 255), 0, 0, x - xoffset, y - yoffset, (48.0f / 333.0f), (72.0f / 499.0f), 0, 0);
+	}
 }
