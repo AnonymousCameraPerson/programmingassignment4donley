@@ -98,14 +98,14 @@ void Sprite::UpdateSprites(int width, int height, int dir)
 	//check for collided with foreground tiles
 	if (animationDirection == 2)
 	{
-		if (collided(x, y + charHeight)) { //collision detection to the left
+		if (collided(x, y+charWidth/2)) { //collision detection to the left
 			x = oldx;
 			y = oldy;
 		}
 	}
 	else if (animationDirection == 3)
 	{
-		if (collided(x + charWidth, y + charHeight)) { //collision detection to the right
+		if (collided(x+charHeight, y+charWidth/2)) { //collision detection to the right
 			x = oldx;
 			y = oldy;
 		}
@@ -113,11 +113,17 @@ void Sprite::UpdateSprites(int width, int height, int dir)
 
 	if (animationDirection == 1)
 	{
-		if (collided(x, y - charHeight)) { //collision detection up
+		if (collided(x, y+5)) { //collision detection up
 			x = oldx;
 			y = oldy;
 		}
 
+	}
+	if (animationDirection == 0) {
+		if (collided(x, y + charHeight)) {
+			x = oldx;
+			y = oldy;
+		}
 	}
 	//collision detection down?
 	
