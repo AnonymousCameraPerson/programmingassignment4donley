@@ -4,6 +4,10 @@
 #include <allegro5/allegro_font.h>
 #include <allegro5/allegro_ttf.h>
 #include "SpriteSheet.h"
+#include <string>
+#include <stdio.h>
+#include <allegro5/allegro_native_dialog.h>
+#include <string.h>
 #include "mappy_A5.h"
 #include <iostream>
 //Lucia Donley
@@ -29,8 +33,11 @@ int main(void)
 	double current_seconds = 0;
 	int not_double_secs = 0;
 	bool timesUp = false;
-
-
+	int level = 1;
+	bool levelOver = false;
+	char name[20];
+	bool gameOver = 0;
+	int MAX_SECS;
 
 	//allegro variable
 	ALLEGRO_DISPLAY* display = NULL;
@@ -59,7 +66,7 @@ int main(void)
 
 	int xOff = 0;
 	int yOff = 0;
-	if (MapLoad("sample.fmp", 1))
+	if (MapLoad("Level1.FMP", 1))
 		return -5;
 
 	event_queue = al_create_event_queue();
@@ -81,9 +88,51 @@ int main(void)
 
 	while (!done)
 	{
+
+		//Pollack pseudo code:
+
+		if (levelOver) {
+			timer = 0;
+			timesUp = false;
+			levelOver = false;
+			level++;
+			if (level > 2) {
+				done = true;
+				break;
+			}
+			MapFreeMem();
+			snprintf(name, sizeof(name), "Level%i.FMP", level);
+
+			player.InitSprites(WIDTH, HEIGHT);
+
+			int xOff = 0;
+			int yOff = 0;
+			current_seconds = 0;
+
+			int loadResult = MapLoad(name, 1);
+
+			if (loadResult != 0)
+			{
+				al_show_native_message_box(NULL, "Error", "Map Failure", "Could not load level file!", NULL, ALLEGRO_MESSAGEBOX_ERROR);
+				exit(0);
+			} //load map
+			//check to see if time is over
+
+
+		}
+		if (level == 1) {
+			MAX_SECS = 60;
+		}
+		else if (level == 2) {
+			MAX_SECS = 120;
+		}
+		else if (level == 3) {
+			MAX_SECS = 180;
+		}
+		
+
 		current_seconds = al_get_time();
 		not_double_secs = (int)current_seconds;
-
 		
 
 		ALLEGRO_EVENT ev;
@@ -186,24 +235,45 @@ int main(void)
 			MapDrawFG(xOff, yOff, 0, 0, WIDTH, HEIGHT, 0);
 			//jump = player.jumping(jump, JUMPIT);
 			player.DrawSprites(xOff, yOff);
+			if (MAX_SECS == 60) {
+				al_draw_textf(time_font, al_map_rgb(255, 0, 127), WIDTH - 250, HEIGHT - 35, 0, "Time Left: %d", MAX_SECS - not_double_secs);
 
-			al_draw_textf(time_font, al_map_rgb(255, 0, 127), WIDTH - 250, HEIGHT - 35, 0, "Time Left: %d", 60 - not_double_secs);
+				if (player.CollisionEndBlock()) {
+					hasWon = true;
+					levelOver = true;
+					al_draw_textf(font, al_map_rgb(255, 255, 255), WIDTH / 2 - 200, 150, 0, "Done in %d seconds!", not_double_secs);
 
-			if (player.CollisionEndBlock()) {
-				hasWon = true;
-				al_draw_textf(font, al_map_rgb(255, 255, 255), WIDTH / 2, 150, 0, "Done in %d seconds!", not_double_secs);
+				}
+				else if (current_seconds >= MAX_SECS) {
+					timesUp = true;
+					al_draw_text(font, al_map_rgb(255, 0, 0), WIDTH / 2, 150, 0, "Time's Up!");
+				}
 			}
-			else if (current_seconds >= 60.0) {
-				timesUp = true;
-				al_draw_textf(font, al_map_rgb(255, 0, 0), WIDTH / 2, 150, 0, "Time's Up!", not_double_secs);
+			else if (MAX_SECS == 120) {
+				al_draw_textf(time_font, al_map_rgb(255, 0, 127), WIDTH - 250, HEIGHT - 35, 0, "Time Left: %d", MAX_SECS - not_double_secs - 3);
+
+				if (player.CollisionEndBlock()) {
+					hasWon = true;
+					levelOver = true;
+					al_draw_textf(font, al_map_rgb(255, 255, 255), WIDTH / 2 - 200, 150, 0, "Done in %d seconds!", 60-(MAX_SECS-not_double_secs-3));
+
+				}
+				else if (current_seconds >= MAX_SECS) {
+					timesUp = true;
+					al_draw_text(font, al_map_rgb(255, 0, 0), WIDTH / 2, 150, 0, "Time's Up!");
+				}
 			}
+			
+			
+			
 			al_flip_display();
 			al_clear_to_color(al_map_rgb(0, 0, 0));
 			if (hasWon) {
-				break;
+				al_rest(3.0);
+				hasWon = false;
 			}
-			else if (timesUp) {
-				break;
+			if (timesUp) {
+				done=true;
 			}
 		}
 	}
