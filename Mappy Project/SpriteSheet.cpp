@@ -105,7 +105,7 @@ void Sprite::UpdateSprites(int width, int height, int dir)
 	}
 	else if (animationDirection == 3)
 	{
-		if (collided(x+charHeight, y+charWidth/2)) { //collision detection to the right
+		if (collided(x+charWidth+2, y) || collided(x+charWidth+2, y+charHeight)) { //collision detection to the right
 			x = oldx;
 			y = oldy;
 		}
@@ -113,14 +113,14 @@ void Sprite::UpdateSprites(int width, int height, int dir)
 
 	if (animationDirection == 1)
 	{
-		if (collided(x, y+5)) { //collision detection up
+		if (collided(x, y) || collided(x+charWidth, y)) { //collision detection up
 			x = oldx;
 			y = oldy;
 		}
 
 	}
 	if (animationDirection == 0) {
-		if (collided(x, y + charHeight)) {
+		if (collided(x, y +charHeight) || collided(x+charWidth, y+charHeight)) {
 			x = oldx;
 			y = oldy;
 		}
