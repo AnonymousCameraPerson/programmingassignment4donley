@@ -36,8 +36,10 @@ int main(void)
 	int level = 1;
 	bool levelOver = false;
 	char name[20];
-	bool gameOver = 0;
+	//bool gameOver = 0;
+	double startTime = 0.0;
 	int MAX_SECS;
+	int timeLeft = 60;
 
 	//allegro variable
 	ALLEGRO_DISPLAY* display = NULL;
@@ -85,16 +87,16 @@ int main(void)
 	player.DrawSprites(0, 0);
 	al_flip_display();
 	al_clear_to_color(al_map_rgb(0, 0, 0));
-
+	startTime = al_get_time();
 	while (!done)
 	{
 
 		//Pollack pseudo code:
 
 		if (levelOver) {
+
 			timer = 0;
 			timesUp = false;
-			levelOver = false;
 			level++;
 			if (level > 3) {
 				done = true;
@@ -117,9 +119,14 @@ int main(void)
 				exit(0);
 			} //load map
 			//check to see if time is over
-
+			startTime = al_get_time();
+			levelOver = false;
 
 		}
+		double secondsGoneBy = al_get_time() - startTime;
+		timeLeft = 60 - (int)secondsGoneBy;
+
+
 		if (level == 1) {
 			MAX_SECS = 60;
 		}
@@ -236,12 +243,12 @@ int main(void)
 			//jump = player.jumping(jump, JUMPIT);
 			player.DrawSprites(xOff, yOff);
 			if (MAX_SECS == 60) {
-				al_draw_textf(time_font, al_map_rgb(255, 0, 127), WIDTH - 250, HEIGHT - 35, 0, "Time Left: %d", MAX_SECS - not_double_secs);
+				al_draw_textf(time_font, al_map_rgb(255, 0, 127), WIDTH - 250, HEIGHT - 35, 0, "Time Left: %d", timeLeft);
 
 				if (player.CollisionEndBlock()) {
 					hasWon = true;
 					levelOver = true;
-					al_draw_textf(font, al_map_rgb(255, 255, 255), WIDTH / 2 - 200, 150, 0, "Done in %d seconds!", not_double_secs);
+					al_draw_textf(font, al_map_rgb(255, 255, 255), WIDTH / 2 - 200, 150, 0, "Done in %d seconds!", 60-timeLeft);
 
 				}
 				else if (current_seconds >= MAX_SECS) {
@@ -250,12 +257,12 @@ int main(void)
 				}
 			}
 			else if (MAX_SECS == 120) {
-				al_draw_textf(time_font, al_map_rgb(255, 255, 255), WIDTH - 250, HEIGHT - 35, 0, "Time Left: %d", MAX_SECS - not_double_secs - 3);
+				al_draw_textf(time_font, al_map_rgb(255, 255, 255), WIDTH - 250, HEIGHT - 35, 0, "Time Left: %d", timeLeft);
 
 				if (player.CollisionEndBlock()) {
 					hasWon = true;
 					levelOver = true;
-					al_draw_textf(font, al_map_rgb(255, 255, 255), WIDTH / 2 - 200, 150, 0, "Done in %d seconds!", 60-(MAX_SECS-not_double_secs-3));
+					al_draw_textf(font, al_map_rgb(255, 255, 255), WIDTH / 2 - 200, 150, 0, "Done in %d seconds!", 60-timeLeft);
 
 				}
 				else if (current_seconds >= MAX_SECS) {
@@ -264,15 +271,16 @@ int main(void)
 				}
 			}
 			else {
-				al_draw_textf(time_font, al_map_rgb(0, 0, 255), WIDTH - 250, HEIGHT - 35, 0, "Time Left: %d", MAX_SECS - not_double_secs - 21);
+				al_draw_textf(time_font, al_map_rgb(0, 0, 255), WIDTH - 250, HEIGHT - 35, 0, "Time Left: %d", timeLeft);
 
 				if (player.CollisionEndBlock()) {
 					hasWon = true;
 					levelOver = true;
-					al_draw_textf(font, al_map_rgb(255, 255, 255), WIDTH / 2 - 200, 150, 0, "Done in %d seconds!", 60 - (MAX_SECS - not_double_secs - 21));
+					al_draw_textf(font, al_map_rgb(255, 255, 255), WIDTH / 2 - 200, 150, 0, "Done in %d seconds!", 60 - timeLeft);
 
 				}
-				else if (current_seconds >= MAX_SECS) {
+				else if (timeLeft <= 0) {
+					timeLeft = 0;
 					timesUp = true;
 					al_draw_text(font, al_map_rgb(255, 0, 0), WIDTH / 2, 150, 0, "Time's Up!");
 				}
