@@ -96,7 +96,7 @@ int main(void)
 			timesUp = false;
 			levelOver = false;
 			level++;
-			if (level > 2) {
+			if (level > 3) {
 				done = true;
 				break;
 			}
@@ -250,12 +250,26 @@ int main(void)
 				}
 			}
 			else if (MAX_SECS == 120) {
-				al_draw_textf(time_font, al_map_rgb(255, 0, 127), WIDTH - 250, HEIGHT - 35, 0, "Time Left: %d", MAX_SECS - not_double_secs - 3);
+				al_draw_textf(time_font, al_map_rgb(255, 255, 255), WIDTH - 250, HEIGHT - 35, 0, "Time Left: %d", MAX_SECS - not_double_secs - 3);
 
 				if (player.CollisionEndBlock()) {
 					hasWon = true;
 					levelOver = true;
 					al_draw_textf(font, al_map_rgb(255, 255, 255), WIDTH / 2 - 200, 150, 0, "Done in %d seconds!", 60-(MAX_SECS-not_double_secs-3));
+
+				}
+				else if (current_seconds >= MAX_SECS) {
+					timesUp = true;
+					al_draw_text(font, al_map_rgb(255, 0, 0), WIDTH / 2, 150, 0, "Time's Up!");
+				}
+			}
+			else {
+				al_draw_textf(time_font, al_map_rgb(0, 0, 255), WIDTH - 250, HEIGHT - 35, 0, "Time Left: %d", MAX_SECS - not_double_secs - 21);
+
+				if (player.CollisionEndBlock()) {
+					hasWon = true;
+					levelOver = true;
+					al_draw_textf(font, al_map_rgb(255, 255, 255), WIDTH / 2 - 200, 150, 0, "Done in %d seconds!", 60 - (MAX_SECS - not_double_secs - 21));
 
 				}
 				else if (current_seconds >= MAX_SECS) {
