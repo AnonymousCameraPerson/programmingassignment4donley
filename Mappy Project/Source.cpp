@@ -251,7 +251,7 @@ int main(void)
 					al_draw_textf(font, al_map_rgb(255, 255, 255), WIDTH / 2 - 200, 150, 0, "Done in %d seconds!", 60-timeLeft);
 
 				}
-				else if (current_seconds >= MAX_SECS) {
+				else if (timeLeft <= 0) {
 					timesUp = true;
 					al_draw_text(font, al_map_rgb(255, 0, 0), WIDTH / 2, 150, 0, "Time's Up!");
 				}
@@ -265,7 +265,7 @@ int main(void)
 					al_draw_textf(font, al_map_rgb(255, 255, 255), WIDTH / 2 - 200, 150, 0, "Done in %d seconds!", 60-timeLeft);
 
 				}
-				else if (current_seconds >= MAX_SECS) {
+				else if (timeLeft <= 0) {
 					timesUp = true;
 					al_draw_text(font, al_map_rgb(255, 0, 0), WIDTH / 2, 150, 0, "Time's Up!");
 				}
