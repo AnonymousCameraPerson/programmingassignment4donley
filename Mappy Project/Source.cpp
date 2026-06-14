@@ -26,6 +26,9 @@ int main(void)
 	Sprite player;
 	const int JUMPIT = 1600;
 	int jump = JUMPIT;
+	double current_seconds = 0;
+	int not_double_secs = 0;
+	bool timesUp = false;
 
 
 
@@ -34,6 +37,7 @@ int main(void)
 	ALLEGRO_EVENT_QUEUE* event_queue = NULL;
 	ALLEGRO_TIMER* timer;
 	ALLEGRO_FONT* font = NULL;
+	ALLEGRO_FONT* time_font = NULL;
 
 	//program init
 	if (!al_init())										//initialize Allegro
@@ -60,8 +64,8 @@ int main(void)
 
 	event_queue = al_create_event_queue();
 	timer = al_create_timer(1.0 / 60);
-	font = al_load_ttf_font("college.ttf", 48, 0);
-
+	font = al_load_ttf_font("college.ttf", 54, 0);
+	time_font = al_load_ttf_font("college.ttf", 36, 0);
 	al_register_event_source(event_queue, al_get_timer_event_source(timer));
 	al_register_event_source(event_queue, al_get_keyboard_event_source());
 
@@ -74,8 +78,14 @@ int main(void)
 	player.DrawSprites(0, 0);
 	al_flip_display();
 	al_clear_to_color(al_map_rgb(0, 0, 0));
+
 	while (!done)
 	{
+		current_seconds = al_get_time();
+		not_double_secs = (int)current_seconds;
+
+		
+
 		ALLEGRO_EVENT ev;
 		al_wait_for_event(event_queue, &ev);
 		if (ev.type == ALLEGRO_EVENT_TIMER)
@@ -94,13 +104,7 @@ int main(void)
 				;
 			else
 				player.UpdateSprites(WIDTH, HEIGHT, 5);
-			if (player.CollisionEndBlock()) {
-				hasWon = true;
-				double current_seconds = al_get_time();
-				int not_double_secs = (int)current_seconds;
-				al_draw_textf(font, al_map_rgb(255, 255, 255), WIDTH / 9, 150, 0, "Done in %d seconds!", not_double_secs);
-				//cout << "You won!\n";
-			}
+			
 			render = true;
 
 		}
@@ -182,9 +186,23 @@ int main(void)
 			MapDrawFG(xOff, yOff, 0, 0, WIDTH, HEIGHT, 0);
 			//jump = player.jumping(jump, JUMPIT);
 			player.DrawSprites(xOff, yOff);
+
+			al_draw_textf(time_font, al_map_rgb(255, 0, 127), WIDTH - 250, HEIGHT - 35, 0, "Time Left: %d", 60 - not_double_secs);
+
+			if (player.CollisionEndBlock()) {
+				hasWon = true;
+				al_draw_textf(font, al_map_rgb(255, 255, 255), WIDTH / 2, 150, 0, "Done in %d seconds!", not_double_secs);
+			}
+			else if (current_seconds >= 60.0) {
+				timesUp = true;
+				al_draw_textf(font, al_map_rgb(255, 0, 0), WIDTH / 2, 150, 0, "Time's Up!", not_double_secs);
+			}
 			al_flip_display();
 			al_clear_to_color(al_map_rgb(0, 0, 0));
 			if (hasWon) {
+				break;
+			}
+			else if (timesUp) {
 				break;
 			}
 		}
